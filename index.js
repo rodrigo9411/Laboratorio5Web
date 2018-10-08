@@ -24,6 +24,14 @@ app.get('/api/pokemon/:id',(req, res) => {
     res.send(poke);
 });
 
+app.post('/api/pokemon', (req, res) => {
+    const poke = {
+        id: pokemon.length + 1,
+        name: req.body.name
+    }
+    pokemon.push(poke);
+    res.send(poke);
+});
 
 
 const port = process.env.PORT || 3000;
