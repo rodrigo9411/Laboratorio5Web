@@ -1,6 +1,8 @@
 const express = require('express');
 const app = express();
 
+app.use(express.json());
+
 const pokemon = [
     { id: 389, name: 'Torterra'},
     { id: 392, name: 'Infernape'},
@@ -15,11 +17,14 @@ app.get('/api/pokemon', (req, res) => {
     res.send(pokemon);
 });
 
+
 app.get('/api/pokemon/:id',(req, res) => {
     const poke = pokemon.find(c => c.id === parseInt(req.params.id));
     if (!poke) res.status(404).send('The Pokemon was not found');
     res.send(poke);
 });
+
+
 
 const port = process.env.PORT || 3000;
 app.listen(port, () => console.log(`Escuchanda en puerto ${port}...`));
