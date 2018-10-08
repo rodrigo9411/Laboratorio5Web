@@ -1,0 +1,23 @@
+{
+  "name": "Laboratorio5Web",
+  "version": "1.0.0",
+  "description": "Laboratorio 5 Express",
+  "main": "app.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/rodrigo9411/Laboratorio5Web.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/rodrigo9411/Laboratorio5Web/issues"
+  },
+  "homepage": "https://github.com/rodrigo9411/Laboratorio5Web#readme",
+  "dependencies": {
+    "express": "^4.16.3"
+  }
+}
