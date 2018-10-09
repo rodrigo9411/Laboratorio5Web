@@ -18,6 +18,7 @@
   },
   "homepage": "https://github.com/rodrigo9411/Laboratorio5Web#readme",
   "dependencies": {
-    "express": "^4.16.3"
+    "express": "^4.16.3",
+    "joi": "^13.7.0"
   }
 }
