@@ -21,7 +21,7 @@ app.get('/api/pokemon', (req, res) => {
 
 app.get('/api/pokemon/:id',(req, res) => {
     const poke = pokemon.find(c => c.id === parseInt(req.params.id));
-    if (!poke) res.status(404).send('The Pokemon was not found');
+    if (!poke) return res.status(404).send('The Pokemon was not found');
     res.send(poke);
 });
 
@@ -29,10 +29,8 @@ app.post('/api/pokemon', (req, res) => {
     
     const { error } = validatePokemon(req.body);
 
-    if(error){
-        res.status(400).send(error.details[0].message);
-        return;
-    }
+    if (error) return res.status(400).send(error.details[0].message);
+        
     
     const poke = {
         id: pokemon.length + 1,
@@ -48,15 +46,12 @@ app.post('/api/pokemon', (req, res) => {
 
 app.put('/api/pokemon/:id', (req,res) => {
     const poke = pokemon.find(c => c.id === parseInt(req.params.id));
-    if (!poke) res.status(404).send('The Pokemon was not found');
+    if (!poke) return res.status(404).send('The Pokemon was not found');
 
 
     const { error } = validatePokemon(req.body);
 
-    if(error){
-        res.status(400).send(error.details[0].message);
-        return;
-    }
+    if (error) return res.status(400).send(error.details[0].message);
 
     poke.name = req.body.name;
     poke.number = req.body.number;
@@ -69,6 +64,15 @@ app.put('/api/pokemon/:id', (req,res) => {
 
 
 });
+
+app.delete('/api/pokemon/:id', (req,res) => {
+    const poke = pokemon.find(c => c.id === parseInt(req.params.id));
+    if (!poke) return res.status(404).send('The Pokemon was not found');
+
+    const index = pokemon.indexOf(poke);
+    pokemon.splice(index,1);
+    res.status(204).send('Pokemon deleted succesfully');
+})
 
 
 function validatePokemon(poke) {
