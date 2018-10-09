@@ -27,18 +27,10 @@ app.get('/api/pokemon/:id',(req, res) => {
 
 app.post('/api/pokemon', (req, res) => {
     
-    const schema = {
-        name: Joi.string().required(),
-        number: Joi.number().required(),
-        typing: Joi.string().required(),
-        baseStatTotal: Joi.string().required(),
-        imageLink: Joi.string().required()
-    };
+    const { error } = validatePokemon(req.body);
 
-    const result = Joi.validate(req.body,schema);
-
-    if(result.error){
-        res.status(400).send(res.error.details[0].message);
+    if(error){
+        res.status(400).send(error.details[0].message);
         return;
     }
     
@@ -51,8 +43,45 @@ app.post('/api/pokemon', (req, res) => {
         imageLink: req.body.imageLink
     }
     pokemon.push(poke);
-    res.send(poke);
+    res.status(201).send('Pokemon added succesfully')
 });
+
+app.put('/api/pokemon/:id', (req,res) => {
+    const poke = pokemon.find(c => c.id === parseInt(req.params.id));
+    if (!poke) res.status(404).send('The Pokemon was not found');
+
+
+    const { error } = validatePokemon(req.body);
+
+    if(error){
+        res.status(400).send(error.details[0].message);
+        return;
+    }
+
+    poke.name = req.body.name;
+    poke.number = req.body.number;
+    poke.typing = req.body.typing;
+    poke.baseStatTotal = req.body.baseStatTotal;
+    poke.imageLink = req.body.imageLink;
+
+    res.status(204).send('Pokemon updated succesfully');
+
+
+
+});
+
+
+function validatePokemon(poke) {
+    const schema = {
+        name: Joi.string().required(),
+        number: Joi.number().required(),
+        typing: Joi.string().required(),
+        baseStatTotal: Joi.string().required(),
+        imageLink: Joi.string().required()
+    };
+
+    return Joi.validate(poke,schema);
+}
 
 
 const port = process.env.PORT || 3000;
