@@ -4,11 +4,17 @@ const app = express();
 
 app.use(express.json());
 
+const mongoose = require('mongoose');
+let dev_db_url = 'mongodb://admin:9Bb6UUE8P8iEicz@ds127994.mlab.com:27994/pokemon';
+let mongoDB = process.env.MONGODB_URI || dev_db_url;
+mongoose.connect(mongoDB);
+mongoose.Promise = global.Promise;
+let db = mongoose.connection;
+db.on('error', console.error.bind(console, 'MongoDB connection error:'));
+
 //Arreglo con items Iniciales
 const pokemon = [
-    { id: 1, name: 'Torterra', number: '389', typing: 'Grass/Ground', baseStatTotal: '525', imageLink: 'https://www.serebii.net/sunmoon/pokemon/389.png'},
-    { id: 2, name: 'Infernape', number: '392', typing: 'Fire/Fighting', baseStatTotal: '534', imageLink: 'https://www.serebii.net/sunmoon/pokemon/392.png'},
-    { id: 3, name: 'Empoleon', number: '395', typing: 'Water/Steel', baseStatTotal: '530', imageLink: 'https://www.serebii.net/sunmoon/pokemon/395.png'}
+   
 ];
 
 //Test
@@ -18,7 +24,11 @@ app.get('/', (req,res) => {
 
 //GET Listado
 app.get('/api/pokemon', (req, res) => {
-    res.send(pokemon);
+    db.collection('pokemon').find().toArray(function(err, results) {
+        res.send(results);
+        // send HTML file populated with quotes here
+      })
+
 });
 
 //GET Individual
@@ -36,15 +46,19 @@ app.post('/api/pokemon', (req, res) => {
     if (error) return res.status(400).send(error.details[0].message);
         
     const poke = {
-        id: pokemon.length + 1,
         name: req.body.name,
         number: req.body.number,
         typing: req.body.typing,
         baseStatTotal: req.body.baseStatTotal,
         imageLink: req.body.imageLink
     }
-    pokemon.push(poke);
-    res.status(201).send('Pokemon added succesfully')
+    db.collection('pokemon').save(poke, (err, result) => {
+        if (err) return console.log(err)
+    
+        console.log('saved to database')
+        res.status(201).send('Pokemon added succesfully')
+      })
+    
 });
 
 //PUT (Update)
@@ -90,6 +104,8 @@ function validatePokemon(poke) {
 
     return Joi.validate(poke,schema);
 }
+
+
 
 
 const port = process.env.PORT || 3000;
