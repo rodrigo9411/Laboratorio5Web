@@ -97,12 +97,13 @@ app.put('/api/pokemon/:id', (req,res) => {
 
 //DELETE
 app.delete('/api/pokemon/:id', (req,res) => {
-    const poke = pokemon.find(c => c.id === parseInt(req.params.id));
-    if (!poke) return res.status(404).send('The Pokemon was not found');
 
-    const index = pokemon.indexOf(poke);
-    pokemon.splice(index,1);
-    res.status(204).send('Pokemon deleted succesfully');
+    db.collection('pokemon').findOneAndDelete({"number":req.params.id},
+    (err, result) => {
+        if (!err) return res.status(404).send('The Pokemon was not found');
+        res.status(204).send('Pokemon deleted succesfully');
+      })
+    
 })
 
 //Funcion para validar que el request sea válido
