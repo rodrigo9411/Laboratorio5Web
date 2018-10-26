@@ -12,6 +12,17 @@ mongoose.Promise = global.Promise;
 let db = mongoose.connection;
 db.on('error', console.error.bind(console, 'MongoDB connection error:'));
 
+//Modelo para mongoDB
+var pokeSchema = new mongoose.Schema({  
+    name: String,
+    number: String,
+    typing: String,
+    baseStatTotal: String,
+    imageLink: String
+    
+  });
+  mongoose.model('Pokemon', pokeSchema);
+
 //Arreglo con items Iniciales
 const pokemon = [
    
@@ -33,9 +44,11 @@ app.get('/api/pokemon', (req, res) => {
 
 //GET Individual
 app.get('/api/pokemon/:id',(req, res) => {
-    const poke = pokemon.find(c => c.id === parseInt(req.params.id));
-    if (!poke) return res.status(404).send('The Pokemon was not found');
-    res.send(poke);
+    db.collection('pokemon').findOne({'number':req.params.id}, function(err,results){
+        if(!results) return res.status(404).send('The Pokemon was not found');
+        res.send(results);
+    })
+
 });
 
 //POST (Create) 
@@ -63,21 +76,21 @@ app.post('/api/pokemon', (req, res) => {
 
 //PUT (Update)
 app.put('/api/pokemon/:id', (req,res) => {
-    const poke = pokemon.find(c => c.id === parseInt(req.params.id));
-    if (!poke) return res.status(404).send('The Pokemon was not found');
 
-
-    const { error } = validatePokemon(req.body);
-
-    if (error) return res.status(400).send(error.details[0].message);
-
-    poke.name = req.body.name;
-    poke.number = req.body.number;
-    poke.typing = req.body.typing;
-    poke.baseStatTotal = req.body.baseStatTotal;
-    poke.imageLink = req.body.imageLink;
-
-    res.status(204).send('Pokemon updated succesfully');
+    db.collection('pokemon').findOneAndUpdate(
+        {"number":req.params.id}, {
+            $set: { 
+                "name":req.body.name,
+                "number":req.body.number,
+                "typing":req.body.typing,
+                "baseStatTotal":req.body.baseStatTotal,
+            }
+        },
+        {upsert: false},
+        function(err, results){
+            if(!results) return res.status(404).send('The Pokemon was not found');
+            res.status(204).send('Pokemon updated succesfully');
+        })
 
 });
 
