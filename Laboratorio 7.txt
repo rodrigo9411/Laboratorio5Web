@@ -1,0 +1,3 @@
+Branch laboratorio 7
+
+NOTA: Para correr redis debe tener el ejecutable corriendo.
