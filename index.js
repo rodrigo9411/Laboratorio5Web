@@ -16,8 +16,8 @@ var cache = require('express-redis-cache')({
     enabled: true
 });
 // connect to Redis
-// const REDIS_URL = process.env.REDIS_URL;
-// const client = redis.createClient(REDIS_URL);
+const REDIS_URL = process.env.REDIS_URL;
+const client = redis.createClient(REDIS_URL);
 
 app.use(express.json());
 app.use(cors());
@@ -30,20 +30,20 @@ mongoose.Promise = global.Promise;
 let db = mongoose.connection;
 db.on('error', console.error.bind(console, 'MongoDB connection error:'));
 
-// //view engine
-// app.engine('handlebars', exphbs({ defaultLayout: 'main' }));
-// app.set('cache', cache)
+//view engine
+app.engine('handlebars', exphbs({ defaultLayout: 'main' }));
+app.set('cache', cache)
 
-// //method override
-// app.use(methodoverride('method'));
+//method override
+app.use(methodoverride('method'));
 
 
-// client.on('connect', () => {
-//     console.log(`connected to redis`);
-// });
-// client.on('error', err => {
-//     console.log(`Error: ${err}`);
-// });
+client.on('connect', () => {
+    console.log(`connected to redis`);
+});
+client.on('error', err => {
+    console.log(`Error: ${err}`);
+});
 
 //Modelo para mongoDB
 var pokeSchema = new mongoose.Schema({  
