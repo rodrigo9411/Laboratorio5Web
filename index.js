@@ -1,6 +1,7 @@
 const Joi = require('joi');
 const express = require('express');
 const app = express();
+const cors = require('cors');
 
 //redis cache
 const redis = require('redis');
@@ -15,34 +16,34 @@ var cache = require('express-redis-cache')({
     enabled: true
 });
 // connect to Redis
-const REDIS_URL = process.env.REDIS_URL;
-const client = redis.createClient(REDIS_URL);
+// const REDIS_URL = process.env.REDIS_URL;
+// const client = redis.createClient(REDIS_URL);
 
 app.use(express.json());
-
+app.use(cors());
 
 const mongoose = require('mongoose');
-let dev_db_url = 'mongodb://admin:9Bb6UUE8P8iEicz@ds127994.mlab.com:27994/pokemon';
+let dev_db_url = 'mongodb://admin:9Bb6UUE8P8iEicz@ds151943.mlab.com:51943/pokemon';
 let mongoDB = process.env.MONGODB_URI || dev_db_url;
 mongoose.connect(mongoDB);
 mongoose.Promise = global.Promise;
 let db = mongoose.connection;
 db.on('error', console.error.bind(console, 'MongoDB connection error:'));
 
-//view engine
-app.engine('handlebars', exphbs({ defaultLayout: 'main' }));
-app.set('cache', cache)
+// //view engine
+// app.engine('handlebars', exphbs({ defaultLayout: 'main' }));
+// app.set('cache', cache)
 
-//method override
-app.use(methodoverride('method'));
+// //method override
+// app.use(methodoverride('method'));
 
 
-client.on('connect', () => {
-    console.log(`connected to redis`);
-});
-client.on('error', err => {
-    console.log(`Error: ${err}`);
-});
+// client.on('connect', () => {
+//     console.log(`connected to redis`);
+// });
+// client.on('error', err => {
+//     console.log(`Error: ${err}`);
+// });
 
 //Modelo para mongoDB
 var pokeSchema = new mongoose.Schema({  
@@ -149,8 +150,7 @@ function validatePokemon(poke) {
         name: Joi.string().required(),
         number: Joi.number().required(),
         typing: Joi.string().required(),
-        baseStatTotal: Joi.string().required(),
-        imageLink: Joi.string().required()
+        baseStatTotal: Joi.string().required()
     };
 
     return Joi.validate(poke,schema);
