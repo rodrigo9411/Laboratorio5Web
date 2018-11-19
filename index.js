@@ -4,10 +4,10 @@ const app = express();
 const cors = require('cors');
 
 //redis cache
-var redis = require('redis');
-var cache = require('express-redis-cache')({
-    host: 'redis', port: 6379
-  });
+// var redis = require('redis');
+// var cache = require('express-redis-cache')({
+//     host: 'redis', port: 6379
+//   });
 
 app.use(express.json());
 app.use(cors());
@@ -43,7 +43,7 @@ app.get('/', (req,res) => {
 });
 
 //GET Listado
-app.get('/api/pokemon',cache.route({ expire: 60, name: 'getAll' }), (req, res) => {
+app.get('/api/pokemon', (req, res) => {
     db.collection('pokemon').find().toArray(function(err, results) {
         res.send(results);
         // send HTML file populated with quotes here
@@ -77,13 +77,13 @@ app.post('/api/pokemon', (req, res) => {
         imageLink: link
     }
     db.collection('pokemon').save(poke, (err, result) => {
-        
-        cache.del('getAll', (err, poke) => {
-            assert.equal(null, err);
-            if (err) return console.log(err)
+        if (err) return console.log(err)
             console.log('saved to database')
             res.status(201).send('Pokemon added succesfully')
-          });
+        // cache.del('getAll', (err, poke) => {
+        //     assert.equal(null, err);
+            
+        //   });
       })
     
 });
