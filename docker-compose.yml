@@ -1,0 +1,33 @@
+version: "3"
+services:
+  redis:
+    image: redis
+    ports:
+      - "6379:6379"
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "100MB"
+        max-file: "3"
+    networks:
+    - redis
+  api:
+    build: ./Laboratorio5Web
+    ports:
+    - "4000:4000"
+    depends_on:
+    - redis
+    environment:
+    - REDIS_URL=redis://redis
+    networks:
+    - redis
+    command: node index.js
+  web:
+    build: ./FrontendWeb/pokemonstats
+    ports:
+    - "8000:80"
+    links:
+    - api
+networks:
+  redis:
+    driver: bridge
