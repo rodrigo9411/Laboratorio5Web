@@ -4,20 +4,10 @@ const app = express();
 const cors = require('cors');
 
 //redis cache
-const redis = require('redis');
-const methodoverride = require('method-override');
-const exphbs = require('express-handlebars');
+var redis = require('redis');
 var cache = require('express-redis-cache')({
-    port: 6379,
-    host: 'localhost',
-    authPass: null,
-    db: 0,
-    prefix: 'home',
-    enabled: true
-});
-// connect to Redis
-const REDIS_URL = process.env.REDIS_URL;
-const client = redis.createClient(REDIS_URL);
+    host: 'redis', port: 6379
+  });
 
 app.use(express.json());
 app.use(cors());
@@ -30,20 +20,6 @@ mongoose.Promise = global.Promise;
 let db = mongoose.connection;
 db.on('error', console.error.bind(console, 'MongoDB connection error:'));
 
-//view engine
-app.engine('handlebars', exphbs({ defaultLayout: 'main' }));
-app.set('cache', cache)
-
-//method override
-app.use(methodoverride('method'));
-
-
-client.on('connect', () => {
-    console.log(`connected to redis`);
-});
-client.on('error', err => {
-    console.log(`Error: ${err}`);
-});
 
 //Modelo para mongoDB
 var pokeSchema = new mongoose.Schema({  
@@ -67,7 +43,7 @@ app.get('/', (req,res) => {
 });
 
 //GET Listado
-app.get('/api/pokemon', (req, res) => {
+app.get('/api/pokemon',cache.route({ expire: 60, name: 'getAll' }), (req, res) => {
     db.collection('pokemon').find().toArray(function(err, results) {
         res.send(results);
         // send HTML file populated with quotes here
@@ -101,10 +77,13 @@ app.post('/api/pokemon', (req, res) => {
         imageLink: link
     }
     db.collection('pokemon').save(poke, (err, result) => {
-        if (err) return console.log(err)
-    
-        console.log('saved to database')
-        res.status(201).send('Pokemon added succesfully')
+        
+        cache.del('getAll', (err, poke) => {
+            assert.equal(null, err);
+            if (err) return console.log(err)
+            console.log('saved to database')
+            res.status(201).send('Pokemon added succesfully')
+          });
       })
     
 });
