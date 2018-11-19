@@ -4,10 +4,8 @@ const app = express();
 const cors = require('cors');
 
 //redis cache
-// var redis = require('redis');
-// var cache = require('express-redis-cache')({
-//     host: 'redis', port: 6379
-//   });
+let redis = require('redis');
+let client = redis.createClient(process.env.REDIS_URL);
 
 app.use(express.json());
 app.use(cors());
@@ -32,10 +30,12 @@ var pokeSchema = new mongoose.Schema({
   });
   mongoose.model('Pokemon', pokeSchema);
 
-//Arreglo con items Iniciales
-const pokemon = [
-   
-];
+
+
+let resp = {
+    status: 200,
+    payload: null
+  };
 
 //Test
 app.get('/', (req,res) => {
@@ -44,19 +44,43 @@ app.get('/', (req,res) => {
 
 //GET Listado
 app.get('/api/pokemon', (req, res) => {
-    db.collection('pokemon').find().toArray(function(err, results) {
-        res.send(results);
-        // send HTML file populated with quotes here
-      })
+
+    client.get('pokemon', function (err, response) {
+        if (response) {
+          resp.payload = JSON.parse(response);
+          resp.status = 200;
+          res.status(200).send(resp)
+        }
+        else {
+            db.collection('pokemon').find().toArray(function(err, results) {
+                res.status(200).send(results);
+                // send HTML file populated with quotes here
+              })
+        }
+      });
+   
+
+   
 
 });
 
 //GET Individual
 app.get('/api/pokemon/:id',(req, res) => {
-    db.collection('pokemon').findOne({'number':req.params.id}, function(err,results){
-        if(!results) return res.status(404).send('The Pokemon was not found');
-        res.send(results);
-    })
+   
+    client.get(req.params.id, function (err, response) {
+        if (response) {
+          resp.payload = JSON.parse(response);
+          resp.status = 200;
+          res.status(200).send(resp)
+        }
+        else {
+            db.collection('pokemon').findOne({'number':req.params.id}, function(err,results){
+                if(!results) return res.status(404).send('The Pokemon was not found');
+                res.status(200).send(results);
+            })
+        
+        }
+      });
 
 });
 
